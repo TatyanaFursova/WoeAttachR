@@ -1,0 +1,47 @@
+attachWOE<-function(bin_list, data)
+{
+  if (!is.data.frame(data)==T) 
+  {
+    print(data, + ': has to be data.frame')
+    break()
+  }
+  
+  if (!is.list(bin_list)==T) 
+    {
+    print(bin_list, + ': has to be a list')
+    break()
+    }  
+    
+  n<-names(bin_list)
+  
+  for (ind in 2:length(n)) {
+    
+    temp<-as.data.frame(lapply(as.data.frame(bin_list[[n[ind]]][,"bin"]), function(y) (gsub("[" , '',y, fixed=TRUE)) ))
+    temp<-as.data.frame(lapply(temp, function(y) (gsub(")" , '',y, fixed=TRUE)) ))
+    temp<-as.data.frame(temp%>% separate("bin", c("low", "high"), ","))
+    woe<-as.data.frame(bin_list[[n[ind]]][,"woe"])
+    k<-paste(n[ind], "bin", sep='_')
+    w<-paste(n[ind], "woe", sep='_')
+    
+    for (j in 1:nrow(data)) 
+      for (i in 1:nrow(temp))
+        
+      {
+        if (temp$low[i]=='-Inf')  
+          if (data[[n[ind]]][j]<as.numeric(temp$high[i])) 
+          {data[[k]][j]<-paste('<', temp$high[i], sep='')
+          data[[w]][j]<-woe[i,] }
+        else 
+          if (data[[n[ind]]][j]>=as.numeric(temp$low[i]) & data[[n[ind]]][j]<as.numeric(temp$high[i]))    
+          {data[[k]][j]<-paste(temp$low[i], temp$high[i], sep='-')
+          data[[w]][j]<-woe[i,]}
+        else if (temp$high[i]=='Inf') then 
+        if (data[[n[ind]]][j]>=as.numeric(temp$low[i])) 
+        {data[[k]][j]<-paste('>=', temp$low[i], sep='')
+        data[[w]][j]<-woe[i,]
+        }
+      }
+  }
+  
+  return(data)
+}
